@@ -1,0 +1,26 @@
+{
+  "name": "Wellmade core",
+  "image": "ghcr.io/wellmade-studio/devcontainers/core:v1",
+  "remoteUser": "wm",
+  "containerUser": "wm",
+  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+  "mounts": [
+    "source=wellmade-gh-config,target=/home/wm/.config/gh,type=volume",
+    "source=wellmade-claude-config,target=/home/wm/.claude,type=volume",
+    "source=wellmade-ssh,target=/home/wm/.ssh,type=volume"
+  ],
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "anthropic.claude-code",
+        "github.vscode-pull-request-github",
+        "eamodio.gitlens",
+        "editorconfig.editorconfig"
+      ],
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "zsh"
+      }
+    }
+  },
+  "postCreateCommand": "echo 'Wellmade core ready. Run claude to start an agent session.'"
+}

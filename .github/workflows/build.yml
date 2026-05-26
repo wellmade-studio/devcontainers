@@ -1,0 +1,92 @@
+name: build
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "images/**"
+      - "catalog.toml"
+      - ".github/workflows/build.yml"
+  pull_request:
+    paths:
+      - "images/**"
+      - "catalog.toml"
+      - ".github/workflows/build.yml"
+  schedule:
+    # Weekly rebuild so upstream apt/npm/pip patches flow through.
+    - cron: "0 5 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_PREFIX: ghcr.io/wellmade-studio/devcontainers
+
+jobs:
+  build-core:
+    runs-on: ubuntu-latest
+    outputs:
+      pushed_tag: ${{ steps.meta.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-qemu-action@v3
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - id: meta
+        run: |
+          echo "tag=v1" >> "$GITHUB_OUTPUT"
+
+      - name: Build & push core
+        uses: docker/build-push-action@v6
+        with:
+          context: images/core
+          platforms: linux/amd64,linux/arm64
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: |
+            ${{ env.IMAGE_PREFIX }}/core:v1
+            ${{ env.IMAGE_PREFIX }}/core:latest
+          cache-from: type=registry,ref=${{ env.IMAGE_PREFIX }}/core:buildcache
+          cache-to: type=registry,ref=${{ env.IMAGE_PREFIX }}/core:buildcache,mode=max
+
+  build-workbench:
+    runs-on: ubuntu-latest
+    needs: build-core
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-qemu-action@v3
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build & push workbench
+        uses: docker/build-push-action@v6
+        with:
+          context: images/workbench
+          platforms: linux/amd64,linux/arm64
+          push: ${{ github.event_name != 'pull_request' }}
+          build-args: |
+            CORE_TAG=v1
+          tags: |
+            ${{ env.IMAGE_PREFIX }}/workbench:v1
+            ${{ env.IMAGE_PREFIX }}/workbench:latest
+          cache-from: type=registry,ref=${{ env.IMAGE_PREFIX }}/workbench:buildcache
+          cache-to: type=registry,ref=${{ env.IMAGE_PREFIX }}/workbench:buildcache,mode=max

@@ -1,0 +1,30 @@
+# Wellmade devcontainer image catalog.
+#
+# This file is read by:
+#   - CI: drives the build matrix in .github/workflows/build.yml
+#   - `wm devcontainer`: presents images to the wizard at scaffold time
+#
+# Adding an image: one entry here + one images/<name>/ directory.
+# That's it — no other file needs touching.
+
+schema_version = 1
+
+[catalog]
+registry = "ghcr.io/wellmade-studio/devcontainers"
+# Rolling major tag. Bumps automatically on every merge to main.
+# Breaking changes warrant a new major (v2) — should be rare.
+current_major = "v1"
+
+[[image]]
+name = "core"
+path = "images/core"
+description = "Agent-ready Debian-slim base. Claude CLI + atelier-ai + wm preinstalled."
+extends = null
+recommended_for = ["thin custom images", "non-language work"]
+
+[[image]]
+name = "workbench"
+path = "images/workbench"
+description = "Daily driver. Node LTS + Python + Rust + Scaleway + Ansible + 1Password + act."
+extends = "core"
+recommended_for = ["most projects", "agent-heavy work", "EU-cloud consulting"]

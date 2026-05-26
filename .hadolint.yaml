@@ -1,0 +1,19 @@
+# Hadolint config for Wellmade devcontainer images.
+# Reference: https://github.com/hadolint/hadolint#rules
+ignored:
+  # DL3008: pin apt-get versions. We deliberately don't pin transitive apt
+  #         packages — Dependabot tracks the ARG-pinned tools, weekly cron
+  #         picks up upstream security patches via apt-get.
+  - DL3008
+  # DL3013: pin pip versions. uv/pipx managed installs are the agent-grade
+  #         path; pip is a fallback only.
+  - DL3013
+  # DL3016: pin npm versions. Rolling :v1 image tag pulls latest globals on
+  #         every rebuild — pinning would defeat the "stay current" promise.
+  - DL3016
+  # DL4006: SHELL with pipefail. We don't pipe through long chains where
+  #         partial failure matters; rules out a lot of noise.
+  - DL4006
+trustedRegistries:
+  - ghcr.io
+  - docker.io

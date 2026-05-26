@@ -1,0 +1,34 @@
+name: lint
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "images/**/Dockerfile"
+      - ".github/workflows/lint.yml"
+      - ".hadolint.yaml"
+  pull_request:
+    paths:
+      - "images/**/Dockerfile"
+      - ".github/workflows/lint.yml"
+      - ".hadolint.yaml"
+
+permissions:
+  contents: read
+
+jobs:
+  hadolint:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        dockerfile:
+          - images/core/Dockerfile
+          - images/workbench/Dockerfile
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: ${{ matrix.dockerfile }}
+          config: .hadolint.yaml
+          failure-threshold: error
