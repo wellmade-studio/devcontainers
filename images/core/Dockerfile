@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1.7
 #
-# wellmade-studio/devcontainers/core
+# wellmade-studio/dc-core
 #
 # Agent-ready Debian-slim base. No language runtimes, no cloud CLIs.
 # Every Wellmade devcontainer image extends this one.

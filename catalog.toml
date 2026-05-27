@@ -10,13 +10,21 @@
 schema_version = 1
 
 [catalog]
-registry = "ghcr.io/wellmade-studio/devcontainers"
+registry = "ghcr.io/wellmade-studio"
+image_prefix = "dc-"
 # Rolling major tag. Bumps automatically on every merge to main.
 # Breaking changes warrant a new major (v2) — should be rare.
 current_major = "v1"
 
+# Each image entry uses two names:
+#   - `name`:        human-facing identifier (used in the wizard, docs, references)
+#   - `image_name`:  registry path (= registry + "/" + image_prefix + image_name)
+# Concept names stay short and clear ("core", "workbench"); package names
+# carry the dc- prefix so they self-identify in the GHCR org listing.
+
 [[image]]
 name = "core"
+image_name = "dc-core"
 path = "images/core"
 description = "Agent-ready Debian-slim base. Claude CLI + atelier-ai + wm preinstalled."
 extends = null
@@ -24,6 +32,7 @@ recommended_for = ["thin custom images", "non-language work"]
 
 [[image]]
 name = "workbench"
+image_name = "dc-workbench"
 path = "images/workbench"
 description = "Daily driver. Node LTS + Python + Rust + Scaleway + Ansible + 1Password + act."
 extends = "core"

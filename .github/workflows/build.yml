@@ -26,7 +26,11 @@ permissions:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_PREFIX: ghcr.io/wellmade-studio/devcontainers
+  # Images publish flat under the org (ghcr.io/wellmade-studio/dc-*),
+  # not nested under a devcontainers/ path. The `dc-` prefix
+  # self-identifies the package family without the slash quirks of
+  # hierarchical GHCR paths.
+  IMAGE_PREFIX: ghcr.io/wellmade-studio
 
 jobs:
   build-core:
@@ -55,16 +59,16 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: ${{ github.event_name != 'pull_request' }}
           tags: |
-            ${{ env.IMAGE_PREFIX }}/core:v1
-            ${{ env.IMAGE_PREFIX }}/core:latest
+            ${{ env.IMAGE_PREFIX }}/dc-core:v1
+            ${{ env.IMAGE_PREFIX }}/dc-core:latest
           # Cache only on push events (where we're authenticated to the
           # registry). PRs build without cache for safety. `ignore-error`
           # on cache-from lets first-run builds proceed when the cache
           # image doesn't exist yet (GHCR returns 403 for missing public
           # packages, not 404 — without this flag, buildx aborts).
           cache-from: |
-            type=registry,ref=${{ env.IMAGE_PREFIX }}/core:buildcache,ignore-error=true
-          cache-to: ${{ github.event_name != 'pull_request' && format('type=registry,ref={0}/core:buildcache,mode=max', env.IMAGE_PREFIX) || '' }}
+            type=registry,ref=${{ env.IMAGE_PREFIX }}/dc-core:buildcache,ignore-error=true
+          cache-to: ${{ github.event_name != 'pull_request' && format('type=registry,ref={0}/dc-core:buildcache,mode=max', env.IMAGE_PREFIX) || '' }}
 
   build-workbench:
     runs-on: ubuntu-latest
@@ -95,8 +99,8 @@ jobs:
           build-args: |
             CORE_TAG=v1
           tags: |
-            ${{ env.IMAGE_PREFIX }}/workbench:v1
-            ${{ env.IMAGE_PREFIX }}/workbench:latest
+            ${{ env.IMAGE_PREFIX }}/dc-workbench:v1
+            ${{ env.IMAGE_PREFIX }}/dc-workbench:latest
           cache-from: |
-            type=registry,ref=${{ env.IMAGE_PREFIX }}/workbench:buildcache,ignore-error=true
-          cache-to: ${{ github.event_name != 'pull_request' && format('type=registry,ref={0}/workbench:buildcache,mode=max', env.IMAGE_PREFIX) || '' }}
+            type=registry,ref=${{ env.IMAGE_PREFIX }}/dc-workbench:buildcache,ignore-error=true
+          cache-to: ${{ github.event_name != 'pull_request' && format('type=registry,ref={0}/dc-workbench:buildcache,mode=max', env.IMAGE_PREFIX) || '' }}

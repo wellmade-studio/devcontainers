@@ -1,12 +1,12 @@
 # syntax=docker/dockerfile:1.7
 #
-# wellmade-studio/devcontainers/workbench
+# wellmade-studio/dc-workbench
 #
 # The daily driver. Node LTS + Python + Rust + Scaleway + Ansible
-# + 1Password + act, on top of the agent-ready core.
+# + 1Password + act, on top of the agent-ready dc-core.
 
 ARG CORE_TAG=v1
-FROM ghcr.io/wellmade-studio/devcontainers/core:${CORE_TAG}
+FROM ghcr.io/wellmade-studio/dc-core:${CORE_TAG}
 
 USER root
 

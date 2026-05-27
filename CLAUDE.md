@@ -3,7 +3,7 @@
 This folder is the **just-created** sibling repo
 `wellmade-studio/devcontainers`. It will hold Wellmade's curated
 dev container images, published to
-`ghcr.io/wellmade-studio/devcontainers/*`.
+`ghcr.io/wellmade-studio/dc-*`.
 
 If you're Claude Code reading this, the situation is:
 
