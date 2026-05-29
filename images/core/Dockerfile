@@ -77,21 +77,32 @@ RUN groupadd --gid ${USER_GID} ${USERNAME} \
 USER ${USERNAME}
 WORKDIR /home/${USERNAME}
 
+# Install oh-my-zsh for plugin ecosystem + sensible defaults, then
+# disable its theme — we drive the prompt entirely from starship below.
 RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended \
- && sed -i 's|^ZSH_THEME=.*|ZSH_THEME="robbyrussell"|' /home/${USERNAME}/.zshrc \
- && cat <<'ZSHRC_APPEND' >> /home/${USERNAME}/.zshrc
+ && sed -i 's|^ZSH_THEME=.*|ZSH_THEME=""|' /home/${USERNAME}/.zshrc
 
-# --- Wellmade devcontainer indicator ---
-# When this shell is running inside a Wellmade devcontainer image, the
-# Dockerfile sets WELLMADE_DC=1. Prepend a small purple `[dc]` to the
-# prompt so it's visually distinct from a host shell — the only thing
-# we need is "in container yes/no". The colour (256-palette 141, a light
-# lavender) stays outside robbyrussell's green/cyan/yellow palette so it
-# doesn't compete with the arrow / cwd / git status segments.
-if [[ -n "$WELLMADE_DC" ]]; then
-  PROMPT="%F{141}[dc]%f $PROMPT"
-fi
-ZSHRC_APPEND
+# --- prompt: starship ----------------------------------------------------
+# starship is a fast, cross-shell prompt configured via TOML. We use it
+# to render the locked Wellmade prompt design (see starship.toml for the
+# full spec). The `[dc]` indicator that marks "you're inside a Wellmade
+# dev container" lives inside starship.toml as a custom module gated on
+# the WELLMADE_DC env var the Dockerfile sets above.
+USER root
+RUN curl -fsSL https://starship.rs/install.sh \
+      | sh -s -- --yes --bin-dir /usr/local/bin
+USER ${USERNAME}
+
+# Drop the prompt config into the user's XDG config dir, then append
+# starship's init hook to .zshrc so it activates on every shell. The
+# .config dir doesn't exist yet (oh-my-zsh's install didn't create it).
+RUN mkdir -p /home/${USERNAME}/.config
+COPY --chown=${USER_UID}:${USER_GID} starship.toml /home/${USERNAME}/.config/starship.toml
+RUN cat <<'STARSHIP_INIT' >> /home/${USERNAME}/.zshrc
+
+# starship prompt — config in ~/.config/starship.toml
+eval "$(starship init zsh)"
+STARSHIP_INIT
 
 # --- node (needed only to install Claude CLI + wm at core level) ---------
 # We install Node here purely to host the agent layer. The `workbench`
