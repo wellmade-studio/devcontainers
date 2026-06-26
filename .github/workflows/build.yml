@@ -53,7 +53,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build & push core
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: images/core
           platforms: linux/amd64,linux/arm64
@@ -91,7 +91,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build & push workbench
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: images/workbench
           platforms: linux/amd64,linux/arm64
