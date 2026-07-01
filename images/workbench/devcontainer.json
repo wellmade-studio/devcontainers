@@ -23,12 +23,14 @@
     "source=wellmade-state-op,target=/home/wm/.config/op,type=volume",
     "source=wellmade-state-kube,target=/home/wm/.kube,type=volume",
 
-    // Caches — safe to docker volume prune. Speeds up cold starts.
-    "source=wellmade-cache-cargo-registry,target=/home/wm/.cargo/registry,type=volume",
-
     // Host Docker socket — required for `act` (local GitHub Actions runs).
     // This is NOT Docker-in-Docker; we use the host daemon via the socket.
-    "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
+    // Kept above the cache mount so the `init.sh` wizard can comment this
+    // single line out without leaving a dangling trailing comma.
+    "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind",
+
+    // Caches — safe to docker volume prune. Speeds up cold starts.
+    "source=wellmade-cache-cargo-registry,target=/home/wm/.cargo/registry,type=volume"
   ],
 
   "customizations": {
